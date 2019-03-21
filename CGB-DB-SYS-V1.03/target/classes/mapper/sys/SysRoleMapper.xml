@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.sys.dao.SysRoleDao">
+    <select id="findPageObjects"
+            resultType="com.db.sys.entity.SysRole">
+        select *
+        from sys_roles
+        <include refid="queryWhereId"/>
+        order by createdTime desc
+        limit #{startIndex},#{pageSize}
+    </select>
+    <select id="getRowCount"
+            resultType="int">
+        select count(*)
+        from sys_roles
+        <include refid="queryWhereId"/>
+    </select>
+    <sql id="queryWhereId">
+        <where>
+            <if test="name!=null and name!=''">
+                name like concat("%",#{name},"%")
+            </if>
+        </where>
+    </sql>
+
+    <delete id="deleteObject"
+            parameterType="int">
+         delete
+         from sys_roles
+         where id=#{id}
+    </delete>
+
+    <insert id="insertObject"
+            parameterType="com.db.sys.entity.SysRole"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+         insert into sys_roles
+         (id,name,note,createdTime,modifiedTime,
+         createdUser,modifiedUser)
+         values
+         (null,#{name},#{note},now(),now(),
+         #{createdUser},#{modifiedUser})
+
+    </insert>
+
+    <resultMap type="com.db.common.vo.SysRoleMenuVo"
+               id="sysRoleMenuVo">
+        <!-- 尝试自己实现：思考讨论 -->
+        <!-- 自己补充实现 -->
+        <collection property="menuIds"
+                    column="id"
+                    select="com.db.sys.dao.SysRoleMenuDao.findMenuIdsByRoleId">
+        </collection>
+    </resultMap>
+    <!-- 基于角色id查询角色信息 -->
+    <select id="findObjectById"
+            resultMap="sysRoleMenuVo">
+           select id,name,note
+           from sys_roles
+           where id=#{id}
+   </select>
+
+    <select id="findObjects" resultType="com.db.common.vo.CheckBox">
+        select id,name from sys_roles;
+    </select>
+
+
+
+
+</mapper>

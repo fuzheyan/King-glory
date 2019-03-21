@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util-4.3.xsd
+       http://www.springframework.org/schema/data/jpa
+       http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+    <!--整合mybatis的SqlSessionFactory
+        1)SqlSessionFactoryBean此对象底层基于SqlSessionFactoryBuilder创建SqlSessionFactory
+        2)所有的FactoryBean类型的对象由spring管理时都会创建两个Bean对象
+        2.1)FactoryBean子类类型的对象
+        2.2)FactoryBean中getObject方法返回的对象-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--基于属性set方法对对象属性进行赋值-->
+        <property name="DataSource" ref="dataSource"/>
+        <!--设置mapper文件的位置-->
+        <property name="mapperLocations" value="classpath*:mapper/sys/*.xml"/>
+    </bean>
+    <!-- 通过此bean对象扫描指定包下的dao接口，并基于接口创建其实现类对象(代理对象)
+     1)系统底层会基于dao接口创建接口的实现类对象
+     2)系统底层会将创建的实现对象存储到spring容器
+     2.1)key为接口名,默认首字母小写
+     2.2)value位dao接口的实现类对象-->
+    <bean id="daoScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.db.**.dao"/>
+        <!--当spring容器中只有一个sqlSessionFactory时如下配置可以不写-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+</beans>

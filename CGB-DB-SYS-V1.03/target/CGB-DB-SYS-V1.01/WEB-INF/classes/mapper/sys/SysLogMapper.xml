@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.sys.dao.SysLogDao">
+    <delete id="deleteObject">
+        delete from sys_logs where id in
+        <foreach collection="ids"
+                 open="("
+                 close=")"
+                 separator=","
+                 item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <sql id="WhereID">
+        <where>
+            <if test="username!=null and username!=''">
+                username like concat("%",#{username},"%")
+            </if>
+        </where>
+    </sql>
+
+    <select id="findById"
+            resultType="map">
+            select * 
+            from sys_logs where id=#{id}
+    </select>
+
+    <select id="findPageObject"
+            resultType="com.db.sys.entity.SysLog">
+        select *
+        from sys_logs
+        <include refid="WhereID"/>
+        order by createdTime desc limit #{startIndex},#{pageSize}
+    </select>
+
+    <select id="getRowCount"
+            resultType="int">
+        select count(*) from sys_Logs
+        <include refid="WhereID"/>
+
+    </select>
+
+    <insert id="insertObjct">
+      insert into sys_logs
+       (username,operation,method,params,time,ip,createdTime)
+       values
+      (#{username},#{operation},#{method},#{params},#{time},#{ip},#{createdTime})
+      </insert>
+</mapper>

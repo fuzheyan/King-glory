@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util-4.3.xsd
+       http://www.springframework.org/schema/data/jpa
+       http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+    <!--加载configs-properties文件,系统底层会创建
+    一个Properties对象,其id为cfg-->
+    <util:properties location="classpath*:configs.properties" id="cfg"/>
+    <import resource="classpath:spring/spring-model.xml"/>
+    <import resource="classpath:spring/spring-web.xml"/>
+
+    <bean id="securityManager"
+          class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="Realm" ref="shiroUserRealm"/>
+
+    </bean>
+
+    <bean id="shiroFilterFactory" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="SecurityManager" ref="securityManager"/>
+        <!-- 设置请求过滤规则 -->
+        <property name="FilterChainDefinitionMap">
+            <map>
+                <entry key="/bower_components/**" value="anon"/>
+                <entry key="/build/**" value="anon"/>
+                <entry key="/dist/**" value="anon"/>
+                <entry key="/plugins/**" value="anon"/>
+                <entry key="/user/doLogin.do" value="anon"/>
+                <entry key="/doLogout.do" value="logout"/>
+                <!-- 必须认证 -->
+                <entry key="/**" value="authc"/>
+            </map>
+        </property>
+        <property name="LoginUrl" value="/doLoginUI.do"/>
+    </bean>
+
+    <bean id="lifecycleBeanPostProcessor"
+          class="org.apache.shiro.spring.LifecycleBeanPostProcessor">
+    </bean>
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor">
+    </bean>
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+</beans>

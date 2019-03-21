@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.sys.dao.SysUserDao">
+    <resultMap id="sysUserMap"
+               type="com.db.sys.entity.SysUserDeptResult">
+        <!-- 关联查询 -->
+        <association property="sysDept"
+                     column="deptId"
+                     select="com.db.sys.dao.SysDeptDao.findById">
+        </association>
+    </resultMap>
+    <select id="findPageObjects"
+            resultMap="sysUserMap">
+        select * from sys_users
+        <include refid="queryWhereId"/>
+        limit #{startIndex},#{pageSize}
+    </select>
+    <select id="getRowCount"
+            resultType="int">
+        select count(*) from sys_users
+        <include refid="queryWhereId"/>
+    </select>
+
+    <update id="validById">
+        update sys_users set valid = #{valid},modifiedUser=#{modifiedUser},modifiedTime=now() where id=#{id}
+    </update>
+
+    <insert id="insertObject"
+            parameterType="com.db.sys.entity.SysUser"
+            useGeneratedKeys="true"
+            keyProperty="id">
+      insert into sys_users
+      (username,password,deptId,email,mobile,salt,valid,
+      createdTime,modifiedTime,createdUser,modifiedUser)
+      values
+    (#{username},#{password},#{deptId},#{email},#{mobile},#{salt},#{valid},
+      now(),now(),#{createdUser},#{modifiedUser})
+   </insert>
+
+    <select id="findUserByUserName" resultType="com.db.sys.entity.SysUser">
+        select * from sys_users where username=#{username}
+    </select>
+
+    <update id="updatePassword">
+        update sys_users set password=#{newpwd},salt=#{salt} where username=#{username}
+    </update>
+
+
+    <sql id="queryWhereId">
+        <where>
+            <if test="username!=null and username!=''">
+                username like concat("%",#{username},"%")
+            </if>
+        </where>
+    </sql>
+</mapper>
